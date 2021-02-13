@@ -1,0 +1,19 @@
+.main {
+    font-size: 1rem;
+    max-width: 800px;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+}
+  
+body {
+    margin: 0;
+}
+  
+p {
+    font-size: 1.6rem;
+}
+
+.mirrorX {
+    transform: rotateY(180deg);
+}
