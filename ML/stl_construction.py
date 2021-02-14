@@ -344,13 +344,13 @@ def construct_fitter(input_file):
     from OCC.Extend.DataExchange import write_stl_file
     output_file = '.'.join(input_file.split('.')[:-1]) + '_fitter'
     output_stl = output_file + '.stl'
-    output_obj = output_file + '.obj'
+    output_obj = output_file + '_bracket.obj'
     
     write_stl_file(aCompound, output_stl)
     print("Written to", output_stl)
     
     output_mesh = trimesh.load_mesh(output_stl)
-    output_mesh = output_mesh.simplify_quadratic_decimation(len(output_mesh.faces) // 50)
+    output_mesh = output_mesh.simplify_quadratic_decimation(len(output_mesh.faces) // 25)
     trimesh.repair.fix_inversion(output_mesh)
     def create_trans_mat(x, y, z):
         r = R.from_euler('xyz', [[x, y, z]], degrees=True)
@@ -362,9 +362,21 @@ def construct_fitter(input_file):
 
     full_trans_mat = create_trans_mat(0 , 0, -90)
     output_mesh.apply_transform(full_trans_mat)
-    output_mesh.export(output_obj)
-    print("Written to", output_obj)
     
+    # add bracket
+    brac_mesh = trimesh.load_mesh('3d_files/bracket_insert_bent.STL')
+    brac_mesh = brac_mesh.simplify_quadratic_decimation(len(brac_mesh.faces) // 2)
+    print(len(brac_mesh.faces))
+    trimesh.repair.fix_inversion(brac_mesh)
+    full_trans_mat = create_trans_mat(-90, 10, 180)
+    brac_mesh.apply_transform(full_trans_mat)
+    brac_mesh.vertices = brac_mesh.vertices * 0.82 + np.array([33, 10, 35])
+    brac_fitter = trimesh.util.concatenate([brac_mesh, output_mesh])
+    brac_fitter.apply_transform(np.diag(np.array([-1,1,1,1])))
+    
+    brac_fitter.export(output_obj)
+    print("Written to", output_obj)
+
     return output_obj
 
 
