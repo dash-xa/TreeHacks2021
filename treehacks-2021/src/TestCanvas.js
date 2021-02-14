@@ -37,6 +37,8 @@ class App extends Component {
             0.1, // near plane
             1000 // far plane
         );
+        
+        // Optional: set camera rotation
 //         this.camera.rotation.y = 45/180 * Math.PI;
 //         this.camera.rotation.x = 0;
 //         this.camera.rotation.y = 0;
@@ -51,8 +53,6 @@ class App extends Component {
         // OrbitControls allow a camera to orbit around the object
         // https://threejs.org/docs/#examples/controls/OrbitControls
         this.controls = new OrbitControls( this.camera, this.mount );
-//         this.controls.autoRotate = false; // this does nothing
-//         this.controls.rotateSpeed = 0;
 
         
         this.renderer = new THREE.WebGLRenderer();
@@ -60,68 +60,23 @@ class App extends Component {
         this.mount.appendChild( this.renderer.domElement ); // mount using React ref
     };
 
-    // Code below is taken from Three.js OBJ Loader example
-    // https://threejs.org/docs/#examples/en/loaders/OBJLoader
-    loadTheModel = () => {
+    
+    loadTheModel = () => { // Taken from Three.js OBJ Loader example (https://threejs.org/docs/#examples/en/loaders/OBJLoader)
+        
         // instantiate a loader
         const loader = new OBJLoader();
         const face = loader.parse(this.props.faceObj);
-        console.log("FACE", face);
         this.scene.add( face );
-//         this.scene.rotation.x = 0;
-        
-//         console.log(this.scene);a
-        
-        // THe next 3 lines do nothing
-//         face.rotation.x = 0;
-//         face.rotation.y = 0;
-//         face.rotation.z = 0;
+
+        // Rotate face by <x> radians
+        face.rotation.x = 5/180 * Math.PI;
+        face.rotation.y = 5/180 * Math.PI;
+        face.rotation.z = 0/180 * Math.PI;
         
         
-        // change some custom props of the element: placement, color, rotation, anything that should be
+        // Optional: change some custom props of the element: 
+        // placement, color, rotation, anything that should be
         // done once the model was loaded and ready for displays
-//         face.material.color.set(0xff0000); 
-        
-        this.model = face;
-
-
-        // make this element available inside of the whole component to do any animation later
-        {/*
-        loader.load( // load a resource
-            'test_cdot.obj',
-            ( object ) => { // called when resource is loaded
-                this.scene.add( object );
-                const el = this.scene.children[5]; // get the newly added object by name specified in the OBJ model
-                // change some custom props of the element: placement, color, rotation, anything that should be
-                // done once the model was loaded and ready for display
-//                 el.position.set(-100, -100, -100);
-
-                // el.material.color.set(0xff0000); <=== THIS BREAKS IT
-//                 el.rotation.x = 1000;
-                el.rotation.x = 0;
-                el.rotation.y = 0;
-                el.rotation.z = 0;
-                
-
-                // make this element available inside of the whole component to do any animation later
-            },
-            // called when loading is in progresses
-             ( xhr ) => {
-
-                const loadingPercentage = Math.ceil(xhr.loaded / xhr.total * 100);
-                console.log( ( loadingPercentage ) + '% loaded' );
-
-                // update parent react component to display loading percentage
-                this.props.onProgress(loadingPercentage);
-            },
-            // called when loading has errors
-             ( error ) => {
-
-                console.log( 'An error happened:' + error );
-
-            }
-        );
-        */}
     };
 
     // adding some lights to the scene
@@ -148,7 +103,8 @@ class App extends Component {
     };
 
     startAnimationLoop = () => {
-        this.renderer.render( this.scene, this.camera );
+        this.renderer.render( this.scene, this.camera ); 
+        
         
         // The window.requestAnimationFrame() method tells the browser that you wish to perform
         // an animation and requests that the browser call a specified function
