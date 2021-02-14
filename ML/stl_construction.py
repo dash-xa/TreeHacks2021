@@ -350,6 +350,18 @@ def construct_fitter(input_file):
     print("Written to", output_stl)
     
     output_mesh = trimesh.load_mesh(output_stl)
+    output_mesh = output_mesh.simplify_quadratic_decimation(len(output_mesh.faces) // 50)
+    trimesh.repair.fix_inversion(output_mesh)
+    def create_trans_mat(x, y, z):
+        r = R.from_euler('xyz', [[x, y, z]], degrees=True)
+        trans_mat = r.as_matrix()
+
+        full_trans_mat = np.eye(4)
+        full_trans_mat[:3, :3] = trans_mat
+        return full_trans_mat
+
+    full_trans_mat = create_trans_mat(0 , 0, -90)
+    output_mesh.apply_transform(full_trans_mat)
     output_mesh.export(output_obj)
     print("Written to", output_obj)
     
