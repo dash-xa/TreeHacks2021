@@ -1,18 +1,53 @@
 .main {
     font-size: 1rem;
     max-width: 800px;
-    margin: 0;
+    margin: auto;
     text-align: center;
     overflow: hidden;
 }
-  
+
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
 body {
-    margin: 0;
+    background-color: silver;
+    font-family: 'Roboto', sans-serif;
 }
-  
-p {
-    font-size: 1.6rem;
+
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: start; 
+    
+  font-family: 'Roboto';
+  font-weight: bold;
+  font-size: 1rem;
+
+  background-color: blue;
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
+
+  padding: 0.25em 0.75em;
+  min-width: 10ch;
+  min-height: 44px;
+
+  text-align: center;
+
+  transition: 220ms all ease-in-out;
 }
+
+button:hover {
+    background-color: darkblue;
+}
+
+button:focus {
+    outline-style: solid;
+    outline-color: transparent;
+    box-shadow: 0 0 0 4px scale-color(blue, $lightness: -40%);
+}
+
 
 .mirrorX {
     transform: rotateY(180deg);

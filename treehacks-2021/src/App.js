@@ -1,12 +1,17 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Webcam from 'react-webcam';
 
-import './App.css'
+import AppCanvas from './AppCanvas';
+import TestCanvas from './TestCanvas';
+
+import './App.css';
 
 function App() {
 
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState();
+    
+  const [retrievedObjFile, setRetrievedObj] = useState();
 
   const capture = useCallback(
     () => {
@@ -18,7 +23,7 @@ function App() {
   );
 
   const sendToServer = () => {
-    fetch('http://35.188.28.21:8000/', {
+    fetch('https://maskfit.verafy.me/api/generate', {
       method: 'POST',
       headers: {
         'Accept': 'image/jpeg',
@@ -26,15 +31,20 @@ function App() {
       },
       body: capturedImage,
     }).then(
-      (response) => {
-        console.log(response);
+      (response) => response.text())
+      .then((response) => {
+        const objFile = response;
+        console.log(objFile);
+        setRetrievedObj(objFile);
       }
     )
   }
   
 
   return (
-    <div class='main'>
+    <div className='main'>
+      <h1>test</h1>
+      <TestCanvas faceObj={retrievedObjFile} />
       <Webcam 
         className="mirrorX"
         audio={false}
@@ -43,9 +53,6 @@ function App() {
       />
       <div>
         <button onClick={capture}>Capture photo</button>
-        <button>
-          <a download="webcam-image" href={capturedImage}>Download</a>
-        </button>
 
         <button onClick={sendToServer}>Send</button>
       </div>
