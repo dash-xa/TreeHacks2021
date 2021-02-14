@@ -1,0 +1,10 @@
+import trimesh
+obj_mesh = trimesh.load('3d_files/cdot_test_0.obj')
+print("original number of faces:", len(obj_mesh.faces))
+sobj_mesh = obj_mesh.simplify_quadratic_decimation(len(obj_mesh.faces) // 20)
+print("new number of faces:", len(sobj_mesh.faces))
+print("original scale:", sobj_mesh.scale)
+sobj_mesh.apply_scale(1 / 10)
+print("new scale:", sobj_mesh.scale)
+sobj_mesh.export('3d_files/cdot_test_ds_scripted.stl')
+sobj_mesh.export('3d_files/cdot_test_ds_scripted.obj')

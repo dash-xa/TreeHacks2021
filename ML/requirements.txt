@@ -1,0 +1,10 @@
+matplotlib
+numpy
+trimesh
+networkx
+rtree
+shapely
+open3d
+pyembree
+pythreejs
+pythonocc-core=7.4.1

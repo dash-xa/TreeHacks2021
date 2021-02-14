@@ -12,8 +12,8 @@ IMAGE_NAME = 'user_image.jpg'
 IMAGE_PATH = os.path.join(IMAGES, IMAGE_NAME)
 
 
-@app.route('/', methods=['GET', 'POST'])
-def hello_world():
+@app.route('/api/generate', methods=['GET', 'POST'])
+def handle_image():
     # Save image locally
     encoded_image = request.data
     print(encoded_image)
