@@ -160,9 +160,17 @@ function App() {
                     console.log("OTHER THING")
                     setUseAR(useAR + 1);
                 }}>AR Mode + Load Mask</button>
-                {retrievedMaskOnly ? <button onClick={() => {
-                                        downloadTxtFile();
-                                    }}>Download Mask</button> : null}
+                {retrievedMaskOnly ? 
+                    <div>
+                        <button onClick={() => {
+                                downloadTxtFile();
+                            }}>Download Mask Bracket
+                        </button>
+                        <a class="btn" href="https://maskfit.verafy.me/bracket_insert.STL" target="_blank">
+                            Download Mask Bracket Insert
+                        </a>
+                    </div>
+                    : null}
             </div>
           </div>
       </div>
