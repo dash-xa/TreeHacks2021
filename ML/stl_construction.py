@@ -18,6 +18,8 @@ from OCC.Core.TColgp import TColgp_Array1OfPnt
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace
 from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakePipe
 
+from scipy.spatial.transform import Rotation as R
+
 
 def construct_fitter(input_file):
     print("fitting", input_file)
@@ -34,8 +36,16 @@ def construct_fitter(input_file):
     print(sobj_mesh.scale)
     trimesh.repair.fix_inversion(sobj_mesh)
 
-    def get_simplified_slice(sobj_mesh):
-        nice_slice = sobj_mesh.section(plane_origin=sobj_mesh.centroid + np.array([0, 0, 42]), plane_normal=[0.55,0,1])
+    def create_trans_mat(x, y, z):
+        r = R.from_euler('xyz', [[x, y, z]], degrees=True)
+        trans_mat = r.as_matrix()
+
+        full_trans_mat = np.eye(4)
+        full_trans_mat[:3, :3] = trans_mat
+        return full_trans_mat
+    
+    def get_simplified_slice(sobj_mesh, depth=42):
+        nice_slice = sobj_mesh.section(plane_origin=sobj_mesh.centroid + np.array([0, 0, depth]), plane_normal=[0.55,0,1])
         sobj_mesh.visual.face_colors = [255,170, 120, 255]
 
         simp_slice = nice_slice.to_planar()[0].simplify_spline()
@@ -44,34 +54,39 @@ def construct_fitter(input_file):
     simp_slice, nice_slice = get_simplified_slice(sobj_mesh)
 
     total_y_rotation = 0
+    total_depth_offset = 42
     rotation_deg_interval = 5
-    from scipy.spatial.transform import Rotation as R
-    r = R.from_euler('xyz', [[0, rotation_deg_interval, 0]], degrees=True)
-    trans_mat = r.as_matrix()
-
-    full_trans_mat = np.eye(4)
-    full_trans_mat[:3, :3] = trans_mat
-
+    full_trans_mat = create_trans_mat(0, rotation_deg_interval, 0)
+    
     # if not working, try rotating the image
-    while (len(simp_slice.entities) != 1 or len(nice_slice.entities) != 1) and total_y_rotation < 50:
+    while (len(simp_slice.entities) != 1):
         sobj_mesh.apply_transform(full_trans_mat)
 
-        simp_slice, nice_slice = get_simplified_slice(sobj_mesh)
+        simp_slice, nice_slice = get_simplified_slice(sobj_mesh, total_depth_offset)
 
         total_y_rotation += rotation_deg_interval
+    
+        if total_y_rotation > 45:
+            if total_depth_offset < 36:
+                reverse_trans_mat = create_trans_mat(0, -total_y_rotation, 0)
+                sobj_mesh.apply_transformation(reverse_trans_mat)
+                total_y_rotation  = 0
+                total_depth_offset -= 2
+            else:
+                raise ValueError('Not able to find a contour on the returned face mesh')
 
     if total_y_rotation != 0:
         # add one more for good measure
-        r = R.from_euler('xyz', [[0, rotation_deg_interval/2, 0]], degrees=True)
-        trans_mat = r.as_matrix()
-
-        full_trans_mat = np.eye(4)
-        full_trans_mat[:3, :3] = trans_mat
         sobj_mesh.apply_transform(full_trans_mat)
-
-        simp_slice, nice_slice = get_simplified_slice(sobj_mesh)
-
-        total_y_rotation += rotation_deg_interval
+        new_simp_slice, new_nice_slice = get_simplified_slice(sobj_mesh)
+        
+        if len(new_simp_slice.entities) != 1:
+            # reverse if it didn't work
+            reverse_trans_mat = create_trans_mat(0, -rotation_deg_interval, 0)
+            sobj_mesh.apply_transformation(reverse_trans_mat)
+            
+        else:
+            total_y_rotation += rotation_deg_interval
 
 
     node_list = simp_slice.entities[0].nodes
@@ -133,15 +148,17 @@ def construct_fitter(input_file):
 
 
     def edges_to_fillets(edges):
+        edges = edges[:]
         fillets = []
         for i in range(1, len(edges)):
             try:
                 fillets.append(filletEdges(edges[i-1], edges[i]))
-            except Exception:
+            except Exception as e:
+                print(e)
                 print(i-1)
                 print(edges[i-1])
                 print(edges[i])
-                raise Exception
+                
         return fillets
 
 
@@ -194,16 +211,17 @@ def construct_fitter(input_file):
             # print("testing vertices:", pnts[i-2].XYZ().Coord(), pnts[i-1].XYZ().Coord(), pnts[i].XYZ().Coord())
             test_edges = vertices_to_edges([pnts[i-2], pnts[i-1], pnts[i]])
             # print("test fillets")
-            test_fillets = edges_to_fillets(test_edges)
-            # print("test wire")
-            test_wire = make_wire(test_edges, test_fillets)
             try:
-                make_pipe(test_wire, pnts[i-2], pnts[i-1])
+                test_fillets = edges_to_fillets(test_edges)
+                # print("test wire")
+                # TODO UNCOMMENT OUT TEST WIRE AND PIPE, BUT IT WAS SEGFAULTING
+                # test_wire = make_wire(test_edges, test_fillets)
+                # make_pipe(test_wire, pnts[i-2], pnts[i-1])
                 # print("good point:", i)
                 good_pnts.append(pnts[i])
             except Exception as e:
                 print(i, e)
-                raise(e)
+                # raise(e)
         return good_pnts
 
     def compose_wire(pnts, close_loop=False, smooth_vertices=False, add_fillets=True):
@@ -252,8 +270,9 @@ def construct_fitter(input_file):
 
     # In[7]:
 
-
-    wire, pnts = compose_wire(ordered_vertices, close_loop=False, smooth_vertices=True)
+#     # ditch edge vertices in case they are weird
+#     ordered_vertices = ordered_vertices[1:-1]
+    wire, pnts = compose_wire(ordered_vertices, close_loop=True, smooth_vertices=True)
     pipe = make_pipe(wire, pnts[0], pnts[1])
 
     recovered_vertices = np.array([pnt.XYZ().Coord() for pnt in pnts])
@@ -355,13 +374,6 @@ def construct_fitter(input_file):
     output_mesh = trimesh.load_mesh(output_stl)
     output_mesh = output_mesh.simplify_quadratic_decimation(len(output_mesh.faces) // 25)
     trimesh.repair.fix_inversion(output_mesh)
-    def create_trans_mat(x, y, z):
-        r = R.from_euler('xyz', [[x, y, z]], degrees=True)
-        trans_mat = r.as_matrix()
-
-        full_trans_mat = np.eye(4)
-        full_trans_mat[:3, :3] = trans_mat
-        return full_trans_mat
 
     full_trans_mat = create_trans_mat(0 , 0, -90)
     output_mesh.apply_transform(full_trans_mat)
@@ -384,4 +396,6 @@ def construct_fitter(input_file):
 
 
 if __name__ == "__main__":
-    construct_fitter('3d_files/jc_0.obj')#cdot_test_0.obj')
+    # construct_fitter('images/user_image_0_original.obj')
+    construct_fitter('3d_files/jc_0.obj')
+    # construct_fitter(cdot_test_0.obj')
