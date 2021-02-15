@@ -5,6 +5,7 @@ import subprocess
 import os
 from simplify_obj_to_stl import simplify_obj
 from stl_construction import construct_fitter
+import shutil
 
 app = Flask(__name__, static_url_path='/images') 
 CORS(app)
@@ -59,14 +60,23 @@ def generate_3d_models(decoded_image):
     
     The model files are saved wherever the original image is
     """
+    if IMAGES in os.listdir():
+        print(os.listdir())
+        shutil.rmtree(IMAGES)
+        os.mkdir(IMAGES)
     f = open(INPUT_IMAGE_PATH, 'wb')
     f.write(decoded_image)
     f.close()    
     
     # Generate 3d face models
+#     if '3DDFA' not in os.getcwd():
     os.chdir(os.path.join(os.getcwd(), '3DDFA'))
     subprocess.call(f"python main.py -f ../{INPUT_IMAGE_PATH}", shell=True)
+    
+
+#     if '3DDFA' in os.getcwd():
     os.chdir('..')
+    
     
     #return app.send_static_file('user_image_0.obj')
     print('Current dir: ' + os.getcwd())

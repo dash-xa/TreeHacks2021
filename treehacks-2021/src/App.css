@@ -1,16 +1,26 @@
 .main {
     font-size: 1rem;
-    max-width: 800px;
     margin: auto;
+    padding: 20px 0 80px 0;
     text-align: center;
     overflow: hidden;
 }
 
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
-body {
-    background-color: pink;
+* {
     font-family: 'Roboto', sans-serif;
+}
+
+body {
+/*  Blue color palette:    */
+/*     background-color: #011535; */
+    
+/*     Turquoise color palette:  */
+    background-color: #e7eaef;
+    
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
 }
 
 
@@ -20,14 +30,22 @@ button {
   justify-content: center;
   align-self: start; 
     
-  font-family: 'Roboto';
-  font-weight: bold;
-  font-size: 1rem;
+  font-family: 'Roboto', sans-serif;
+/*   font-weight: bold; */
+  font-size: 1.4rem;
 
-  background-color: blue;
+/*   background-color: #9ba8b8; */
+  background-color: #05828e;
   color: #fff;
+  border-color: #05828e;
   border-radius: 8px;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
+    
+/*     font-weight: bold; */
+    
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-left: 20px;
+/*   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18); */
 
   padding: 0.25em 0.75em;
   min-width: 10ch;
@@ -39,13 +57,62 @@ button {
 }
 
 button:hover {
-    background-color: darkblue;
+    background-color: #32322C;
 }
 
 button:focus {
     outline-style: solid;
     outline-color: transparent;
     box-shadow: 0 0 0 4px scale-color(blue, $lightness: -40%);
+}
+
+
+.diag-banner {
+/*     Gold/Blue Color Theme:  */
+/*     background-image: linear-gradient(30deg, #896c05, #cda308); */
+    
+/*     Turquoise Color Theme:  */
+    background-image: linear-gradient(30deg, #05828e, #068389);
+    transform: skewY(-3deg);
+}
+
+.title-banner {
+    font-size: 3rem;
+    font-weight: bolder;
+    padding: 1rem;
+    color: #111111;
+}
+
+.bordered-screen {
+    border: 3px solid #32322C;
+    border-radius: 1rem;
+    width: 40%;
+    margin: auto;
+    padding: 40px;
+    margin-top: 5%;
+    margin-bottom: 10%;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.18);
+    
+/*     Gold/Blue Color Theme:  */
+/*     background-color: #344150; */
+    
+/*     Turquoise Color Theme:  */
+    background-color: #93ede4;
+    text-align: center;
+}
+
+
+.dim {
+      position: fixed;
+      width: 12.5%;
+      height: 50%;
+      top: 25%;
+      left: 50%;
+      /* for IE */
+      box-shadow: 0 0 0 1000px rgba(0,0,0,.3);
+      /* for real browsers */
+      box-shadow: 0 0 0 100vmax rgba(0,0,0,.3);
+      pointer-events: none;
 }
 
 

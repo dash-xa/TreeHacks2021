@@ -35,7 +35,7 @@ def construct_fitter(input_file):
     trimesh.repair.fix_inversion(sobj_mesh)
 
     def get_simplified_slice(sobj_mesh):
-        nice_slice = sobj_mesh.section(plane_origin=sobj_mesh.centroid + np.array([0, 0, 40]), plane_normal=[0.55,0,1])
+        nice_slice = sobj_mesh.section(plane_origin=sobj_mesh.centroid + np.array([0, 0, 42]), plane_normal=[0.55,0,1])
         sobj_mesh.visual.face_colors = [255,170, 120, 255]
 
         simp_slice = nice_slice.to_planar()[0].simplify_spline()
@@ -53,7 +53,7 @@ def construct_fitter(input_file):
     full_trans_mat[:3, :3] = trans_mat
 
     # if not working, try rotating the image
-    while len(simp_slice.entities) != 1 or len(nice_slice.entities) != 1:
+    while (len(simp_slice.entities) != 1 or len(nice_slice.entities) != 1) and total_y_rotation < 50:
         sobj_mesh.apply_transform(full_trans_mat)
 
         simp_slice, nice_slice = get_simplified_slice(sobj_mesh)
@@ -87,7 +87,7 @@ def construct_fitter(input_file):
     def filletEdges(ed1, ed2):
         f = ChFi2d_AnaFilletAlgo()
         f.Init(ed1,ed2,gp_Pln())
-        f.Perform(RADIUS)
+        f.Perform(RADIUS - 0.4)
         return f.Result(ed1, ed2)
 
 
@@ -188,6 +188,9 @@ def construct_fitter(input_file):
         else:
             good_pnts = pnts[:2]
         for i in range(2, len(pnts)):
+            # TODO REMOVE
+            good_pnts.append(pnts[i])
+            continue
             # print("testing vertices:", pnts[i-2].XYZ().Coord(), pnts[i-1].XYZ().Coord(), pnts[i].XYZ().Coord())
             test_edges = vertices_to_edges([pnts[i-2], pnts[i-1], pnts[i]])
             # print("test fillets")
@@ -212,14 +215,14 @@ def construct_fitter(input_file):
         if close_loop:
             pnts.append(pnts[0])
         # the edges
-        print("makeedge")
+        print("makeedge with", len(pnts), "vertices")
         edges = vertices_to_edges(pnts)  # [:len(pnts)//4])
 
         if add_fillets:
-            # print("makefillets")
+            print("makefillets")
             fillets = edges_to_fillets(edges)
 
-        # print("makewire")
+        print("makewire")
         if add_fillets:
             wire = make_wire(edges, fillets)
         else:
@@ -250,7 +253,7 @@ def construct_fitter(input_file):
     # In[7]:
 
 
-    wire, pnts = compose_wire(ordered_vertices, close_loop=True, smooth_vertices=True)
+    wire, pnts = compose_wire(ordered_vertices, close_loop=False, smooth_vertices=True)
     pipe = make_pipe(wire, pnts[0], pnts[1])
 
     recovered_vertices = np.array([pnt.XYZ().Coord() for pnt in pnts])
@@ -370,7 +373,7 @@ def construct_fitter(input_file):
     trimesh.repair.fix_inversion(brac_mesh)
     full_trans_mat = create_trans_mat(-90, 10, 180)
     brac_mesh.apply_transform(full_trans_mat)
-    brac_mesh.vertices = brac_mesh.vertices * 0.82 + np.array([33, 10, 35])
+    brac_mesh.vertices = brac_mesh.vertices * 0.86 + np.array([35, 10, 35])
     brac_fitter = trimesh.util.concatenate([brac_mesh, output_mesh])
     brac_fitter.apply_transform(np.diag(np.array([-1,1,1,1])))
     
@@ -381,4 +384,4 @@ def construct_fitter(input_file):
 
 
 if __name__ == "__main__":
-    construct_fitter('3d_files/cdot_test_0.obj')
+    construct_fitter('3d_files/jc_0.obj')#cdot_test_0.obj')

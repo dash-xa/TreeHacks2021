@@ -1,11 +1,11 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import * as THREE from 'three';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 
 const style = {
-    height: 500 // we can control scene size by setting container dimensions
+    height: 400 // we can control scene size by setting container dimensions
 };
 
 class App extends Component {
@@ -14,6 +14,7 @@ class App extends Component {
         this.addLights();
         this.loadTheModel();
         this.startAnimationLoop();
+        this.handleWindowResize();
         window.addEventListener('resize', this.handleWindowResize);
     }
 
@@ -31,8 +32,9 @@ class App extends Component {
         const height = this.mount.clientHeight / 1.5;
 
         this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0xdddddd);
         this.camera = new THREE.PerspectiveCamera(
-            40, // fov = field of view
+            60, // fov = field of view
             width / height, // aspect ratio
             0.1, // near plane
             1000 // far plane
@@ -77,6 +79,9 @@ class App extends Component {
         // Optional: change some custom props of the element: 
         // placement, color, rotation, anything that should be
         // done once the model was loaded and ready for displays
+        
+        // ADJUST SIZE OF FACE HERE:
+        face.scale.set(0.33, 0.33, 0.33);
     };
 
     // adding some lights to the scene
@@ -129,22 +134,13 @@ class App extends Component {
     }
 }
 
-class Container extends React.Component {
-    state = {isMounted: true};
-
-    render() {
-        const {isMounted = true, loadingPercentage = 0} = this.state;
-        return (
-            <>
-                <button onClick={() => this.setState(state => ({isMounted: !state.isMounted}))}>
-                    {isMounted ? "Unmount" : "Mount"}
-                </button>
-                {this.props.faceObj && <App faceObj={this.props.faceObj} onProgress={loadingPercentage => this.setState({ loadingPercentage })} />}
-                {isMounted && loadingPercentage === 100 && <div>Scroll to zoom, drag to rotate</div>}
-                {isMounted && loadingPercentage !== 100 && <div>Loading Model: {loadingPercentage}%</div>}
-            </>
-        )
-    }
+function Container(props) {
+    return (
+        <div>
+            {!props.faceObj ? <p>Take a picture of your face to see the render!</p> : <p>Scroll to zoom, drag to rotate</p>}
+            {props.faceObj && <App faceObj={props.faceObj} />}
+        </div>
+    )
 }
 
 export default Container;
