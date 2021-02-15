@@ -3,6 +3,7 @@ import Webcam from 'react-webcam';
 
 import AppCanvas from './AppCanvas2';
 import TestCanvas from './TestCanvas';
+import default_obj from './default_obj';
 
 import './App.css';
 
@@ -82,7 +83,7 @@ function App() {
         const objFile = response;
         console.log("OTHER MASK");
         setRetrievedObj(objFile);
-        setSentStatus('Your mask was retrieved successfully! To see how it looks, click the button below!');
+        setSentStatus('Your mask was retrieved successfully! To see how it looks and download it, click the button below!');
       }
     )
   }
@@ -95,9 +96,13 @@ function App() {
         'Content-Type': 'image/jpeg',
       },
       body: capturedImage,
-    }).then(
-      (response) => response.text())
-      .then((response) => {
+    }).then((response) => {
+        if (response.status == 500) {
+            setSentStatus('Your mask was retrieved successfully! To see how it looks and download it, click the button below!\n\nMask fitting had an error - a default mask frame is loaded below');
+            return default_obj;
+        }
+        return response.text()
+    }).then((response) => {
         const objFile = response;
         console.log("RETRIEVING MY MASK");
         setRetrievedMask(objFile);
@@ -154,7 +159,7 @@ function App() {
                     }
                     console.log("OTHER THING")
                     setUseAR(useAR + 1);
-                }}>AR Mode</button>
+                }}>AR Mode + Load Mask</button>
                 {retrievedMaskOnly ? <button onClick={() => {
                                         downloadTxtFile();
                                     }}>Download Mask</button> : null}
