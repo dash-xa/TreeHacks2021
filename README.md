@@ -1,5 +1,5 @@
-# TreeHacks2021
-Our submission for TreeHacks 2021!
+# Maskus
+
 ## Inspiration
 During modern times, the idea underlying a facemask is simple--if more people wear them, less people will get sick. And while it holds true, this is an oversimplification: the number of lives saved is dependent not only on the quantity, but also on the quality of the masks which people wear (as evidenced by recent research by the CDC). However, due to an insufficient supply of N95 masks, healthcare workers are forced to wear cloth or surgical masks which both leak from the sides, increasing the risk of infection, and are arduous to breathe through for extended physical exertion.
 
