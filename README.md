@@ -1,5 +1,5 @@
 # Maskus
-Here's the [Devpost](https://www.google.com) for our project!
+Here's the [Devpost](https://devpost.com/software/maskimus) for our project!
 Maskus was built for Stanford's TreeHacks 2021 Hackathon, and built by a team of 4: Alex Cui, Charlie Luo, Akash Binoj, and Alex Shevchuk. The project won Best Hardware Hack and Best Use of ML. Check it out!
 
 ## Inspiration
