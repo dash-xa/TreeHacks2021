@@ -65,7 +65,7 @@ def generate_3d_models(decoded_image):
 #     if IMAGES in os.listdir():
 #         shutil.rmtree(IMAGES)
 #         os.mkdir(IMAGES)
-    with open(os.path.join(DATA, COUNTER_FILE_NAME), 'r+t') as counterFile:
+    with open(COUNTER_FILE_NAME, 'r+t') as counterFile:
         counter = int(counterFile.read()) + 1
         os.mkdir(f'data/{counter}')
         with open(f'data/{counter}/user_image.jpg', 'wb') as imageFile:
