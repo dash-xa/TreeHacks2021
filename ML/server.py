@@ -10,11 +10,11 @@ import shutil
 app = Flask(__name__, static_url_path='/images') 
 CORS(app)
 
-IMAGES = 'images'
+DATA = 'data'
+COUNTER_FILE_NAME = 'counter.txt'
 INPUT_IMAGE_NAME = 'user_image.jpg'
 OUTPUT_OBJ_NAME = 'user_image_0.obj'
-INPUT_IMAGE_PATH = os.path.join(IMAGES, INPUT_IMAGE_NAME)
-OUTPUT_OBJ_PATH = os.path.join(IMAGES, OUTPUT_OBJ_NAME)
+
 
 # 2 things needed for frontend:
 # 1) face render + mask for 3d static image
@@ -60,26 +60,29 @@ def generate_3d_models(decoded_image):
     
     The model files are saved wherever the original image is
     """
-    if IMAGES in os.listdir():
-        print(os.listdir())
-        shutil.rmtree(IMAGES)
-        os.mkdir(IMAGES)
-    f = open(INPUT_IMAGE_PATH, 'wb')
-    f.write(decoded_image)
-    f.close()    
     
+    
+#     if IMAGES in os.listdir():
+#         shutil.rmtree(IMAGES)
+#         os.mkdir(IMAGES)
+    with open(os.path.join(DATA, COUNTER_FILE_NAME), 'r+t') as counterFile:
+        counter = int(counterFile.read()) + 1
+        os.mkdir(f'data/{counter}')
+        with open(f'data/{counter}/user_image.jpg', 'wb') as imageFile:
+            # save file to data/{counter}/user_image.jpg
+            imageFile.write(decoded_image)
+        counterFile.seek(0)
+        counterFile.write(str(counter))
+        ## TODO: Dump terminal log to user's folder
+       
     # Generate 3d face models
-#     if '3DDFA' not in os.getcwd():
     os.chdir(os.path.join(os.getcwd(), '3DDFA'))
-    subprocess.call(f"python main.py -f ../{INPUT_IMAGE_PATH}", shell=True)
-    
-
-#     if '3DDFA' in os.getcwd():
-    os.chdir('..')
+    subprocess.call(f"python main.py -f ../data/{counter}/user_image.jpg | tee ../data/{counter}/log.txt", shell=True)
+    os.chdir('..') # change back to root directory
     
     
     #return app.send_static_file('user_image_0.obj')
-    print('Current dir: ' + os.getcwd())
-    pretty_obj, original_obj = simplify_obj(OUTPUT_OBJ_PATH)
+#     print('Current dir: ' + os.getcwd())
+    pretty_obj, original_obj = simplify_obj(f"data/{counter}/{OUTPUT_OBJ_NAME}")
     
     return pretty_obj, original_obj
