@@ -1,0 +1,9 @@
+Image Type: <class 'numpy.ndarray'>
+len rects: 1
+Dump tp ../data/16/user_image_0.ply
+Save 68 3d landmarks to ../data/16/user_image_0.txt
+Dump obj with sampled texture to ../data/16/user_image_0.obj
+Dump to ../data/16/user_image_pose.jpg
+Dump to ../data/16/user_image_depth.png
+Dump to ../data/16/user_image_pncc.png
+Save visualization result to ../data/16/user_image_3DDFA.jpg
